@@ -1,4 +1,4 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
 ## ----install packages, echo=FALSE, warning=FALSE, results='hide',message=FALSE----
@@ -14,7 +14,7 @@ require("dplyr")
 require("ggplot2")
 ###*****************************
 
-## ----generate data for double - sigmoidal--------------------------------
+## ----generate data for double - sigmoidal-------------------------------------
 time <- seq(3, 24, 0.5)
 noise_parameter <- 0.2
 intensity_noise <- runif(n = length(time), min = 0, max = 1) * noise_parameter
@@ -29,27 +29,27 @@ intensity <- intensity + intensity_noise
 dataInput <- data.frame(time, intensity)
 head(dataInput) # the generated input data
 
-## ----normalize_data------------------------------------------------------
+## ----normalize_data-----------------------------------------------------------
 normalizedInput <- normalizeData(dataInput = dataInput, 
                                  dataInputName = "doubleSigmoidalSample")
 head(normalizedInput$timeIntensityData) # the normalized time and intensity data
 
-## ----normalized_data_output----------------------------------------------
+## ----normalized_data_output---------------------------------------------------
 normalizedInput$dataScalingParameters # scaling parameters
 normalizedInput$dataInputName # data input name
 
-## ----time normalization, eval=FALSE--------------------------------------
+## ----time normalization, eval=FALSE-------------------------------------------
 #  timeRange <- time
 #  timeNormalized <- time/timeRange # normalized time values
 
-## ----intensity normalization, eval=FALSE---------------------------------
+## ----intensity normalization, eval=FALSE--------------------------------------
 #  intensityMin <- min(intensity)
 #  intensityMax <- max(intensity)
 #  intensityRange <- intensityMax - intensityMin
 #  
 #  intensityNormalized <- (intensity-intensityMin)/intensityRange # normalized intensity values
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Do the sigmoidal fit
 sigmoidalModel <- multipleFitFunction(dataInput=normalizedInput,
                                       model="sigmoidal")
@@ -59,7 +59,7 @@ sigmoidalModel <- multipleFitFunction(dataInput=normalizedInput,
 doubleSigmoidalModel <- multipleFitFunction(dataInput=normalizedInput,
                                             model="doublesigmoidal")
 
-## ----parameter vectors---------------------------------------------------
+## ----parameter vectors--------------------------------------------------------
 t(sigmoidalModel)
 t(doubleSigmoidalModel)
 

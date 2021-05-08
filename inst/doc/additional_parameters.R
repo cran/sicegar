@@ -1,4 +1,4 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
 ## ----install packages, echo=FALSE, warning=FALSE, results='hide', message=FALSE----
@@ -50,27 +50,27 @@ normalizedSigmoidalInput = sicegar::normalizeData(dataInput = dataInputSigmoidal
 normalizedDoubleSigmoidalInput = sicegar::normalizeData(dataInput = dataInputDoubleSigmoidal, 
                                          dataInputName = "doubleSigmoidalSample")
 
-## ----sigmoidal and double sigmoidal fit to datasets----------------------
+## ----sigmoidal and double sigmoidal fit to datasets---------------------------
 sigmoidalModel <- multipleFitFunction(dataInput=normalizedSigmoidalInput,
                                    model="sigmoidal")
 
-## ----echo=FALSE, warning=FALSE, results='hide', message=FALSE------------
+## ----echo=FALSE, warning=FALSE, results='hide', message=FALSE-----------------
 doubleSigmoidalModel <- multipleFitFunction(dataInput=normalizedDoubleSigmoidalInput,
                                          model="doublesigmoidal")
 
 ## ----generate additional parameters for sigmoidalModel and doubleSigmoidalModel----
 sigmoidalModelAugmented <- parameterCalculation(sigmoidalModel)
 
-## ----echo=FALSE, warning=FALSE, results='hide', message=FALSE------------
+## ----echo=FALSE, warning=FALSE, results='hide', message=FALSE-----------------
 doubleSigmoidalModelAugmented <- parameterCalculation(doubleSigmoidalModel)
 
-## ----generate additional parameters for sigmoidalModel-------------------
+## ----generate additional parameters for sigmoidalModel------------------------
 # before parameter calculation 
 t(sigmoidalModel)
 # after parameter calculation 
 t(sigmoidalModelAugmented)
 
-## ----echo=FALSE, warning=FALSE, results='hide', message=FALSE------------
+## ----echo=FALSE, warning=FALSE, results='hide', message=FALSE-----------------
 # Parameters for double sigmoidal model
 print(t(doubleSigmoidalModel))
 

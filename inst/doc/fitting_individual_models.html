@@ -1,45 +1,75 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Umut Caglar, Claus O. Wilke" />
 
-<meta name="date" content="2019-08-22" />
+<meta name="date" content="2021-05-07" />
 
 <title>Fitting individual models</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +78,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -96,7 +126,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -104,6 +134,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 })();
 </script>
+
 
 
 
@@ -117,9 +148,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -288,7 +316,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -303,25 +332,25 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Fitting individual models</h1>
 <h4 class="author">Umut Caglar, Claus O. Wilke</h4>
-<h4 class="date">2019-08-22</h4>
+<h4 class="date">2021-05-07</h4>
 
 
 
 <p>Sometimes it can be useful to fit only specific models to a dataset rather than fit multiple models and run the decision algorithm. For this purpose, <strong>sicegar</strong> provides the function <code>multipleFitFunction()</code>. This function fits a chosen model to the input dataset. It calls the fitting algorithm multiple times with different, randomly generated start parameters, to guarantee robust and reliable fitting.</p>
 <p>We will demonstrate the use of this function on double-sigmoidal data, generated by adding some noise to the double-sigmoidal curve used for fitting. The curve used for fitting is implemented as <code>doublesigmoidalFitFormula()</code>, and thus can be used to generate model data.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">time &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">3</span>, <span class="dv">24</span>, <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">noise_parameter &lt;-<span class="st"> </span><span class="fl">0.2</span></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">intensity_noise &lt;-<span class="st"> </span><span class="kw">runif</span>(<span class="dt">n =</span> <span class="kw">length</span>(time), <span class="dt">min =</span> <span class="dv">0</span>, <span class="dt">max =</span> <span class="dv">1</span>) <span class="op">*</span><span class="st"> </span>noise_parameter</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">intensity &lt;-<span class="st"> </span><span class="kw">doublesigmoidalFitFormula</span>(time,</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">                                       <span class="dt">finalAsymptoteIntensityRatio =</span> <span class="fl">.3</span>,</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">                                       <span class="dt">maximum =</span> <span class="dv">4</span>,</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">                                       <span class="dt">slope1Param =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">                                       <span class="dt">midPoint1Param =</span> <span class="dv">7</span>,</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">                                       <span class="dt">slope2Param =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">                                       <span class="dt">midPointDistanceParam =</span> <span class="dv">8</span>)</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">intensity &lt;-<span class="st"> </span>intensity <span class="op">+</span><span class="st"> </span>intensity_noise</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">dataInput &lt;-<span class="st"> </span><span class="kw">data.frame</span>(time, intensity)</a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw">head</span>(dataInput) <span class="co"># the generated input data</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>time <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">3</span>, <span class="dv">24</span>, <span class="fl">0.5</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>noise_parameter <span class="ot">&lt;-</span> <span class="fl">0.2</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>intensity_noise <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="at">n =</span> <span class="fu">length</span>(time), <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">1</span>) <span class="sc">*</span> noise_parameter</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>intensity <span class="ot">&lt;-</span> <span class="fu">doublesigmoidalFitFormula</span>(time,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">finalAsymptoteIntensityRatio =</span> .<span class="dv">3</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">maximum =</span> <span class="dv">4</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">slope1Param =</span> <span class="dv">1</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">midPoint1Param =</span> <span class="dv">7</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">slope2Param =</span> <span class="dv">1</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">midPointDistanceParam =</span> <span class="dv">8</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>intensity <span class="ot">&lt;-</span> intensity <span class="sc">+</span> intensity_noise</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>dataInput <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(time, intensity)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dataInput) <span class="co"># the generated input data</span></span></code></pre></div>
 <pre><code>##   time intensity
 ## 1  3.0 0.2342345
 ## 2  3.5 0.2634529
@@ -330,9 +359,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ## 5  5.0 0.5435398
 ## 6  5.5 0.7838986</code></pre>
 <p>Before we can perform the fit, we need to normalize the data appropriately. All <strong>sicegar</strong> fit functions work on normalized data, where time and intensity are normalized to the interval from 0 to 1. Sicegar provides a convenient normalization function <code>normalizeData()</code> that normalizes data appropriately while storing the required information to transform fitted parameters back into non-normalized coordinates:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">normalizedInput &lt;-<span class="st"> </span><span class="kw">normalizeData</span>(<span class="dt">dataInput =</span> dataInput, </a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">                                 <span class="dt">dataInputName =</span> <span class="st">&quot;doubleSigmoidalSample&quot;</span>)</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">head</span>(normalizedInput<span class="op">$</span>timeIntensityData) <span class="co"># the normalized time and intensity data</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>normalizedInput <span class="ot">&lt;-</span> <span class="fu">normalizeData</span>(<span class="at">dataInput =</span> dataInput, </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">dataInputName =</span> <span class="st">&quot;doubleSigmoidalSample&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(normalizedInput<span class="sc">$</span>timeIntensityData) <span class="co"># the normalized time and intensity data</span></span></code></pre></div>
 <pre><code>##        time   intensity
 ## 1 0.1250000 0.000000000
 ## 2 0.1458333 0.007491139
@@ -341,33 +370,33 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ## 5 0.2083333 0.079300988
 ## 6 0.2291667 0.140925160</code></pre>
 <p>The data scaling paratmers and the data input name are stored as well:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">normalizedInput<span class="op">$</span>dataScalingParameters <span class="co"># scaling parameters</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>normalizedInput<span class="sc">$</span>dataScalingParameters <span class="co"># scaling parameters</span></span></code></pre></div>
 <pre><code>##      timeRange   intensityMin   intensityMax intensityRange 
 ##     24.0000000      0.2342345      4.1346318      3.9003973</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">normalizedInput<span class="op">$</span>dataInputName <span class="co"># data input name</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>normalizedInput<span class="sc">$</span>dataInputName <span class="co"># data input name</span></span></code></pre></div>
 <pre><code>## [1] &quot;doubleSigmoidalSample&quot;</code></pre>
 <p>Note that <code>normalizeData()</code> normalizes time with respect to the maximum value the time parameter takes:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">timeRange &lt;-<span class="st"> </span>time</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">timeNormalized &lt;-<span class="st"> </span>time<span class="op">/</span>timeRange <span class="co"># normalized time values</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>timeRange <span class="ot">&lt;-</span> time</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>timeNormalized <span class="ot">&lt;-</span> time<span class="sc">/</span>timeRange <span class="co"># normalized time values</span></span></code></pre></div>
 <p>Whereas intensity is normalized with respect to the intensity interval:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">intensityMin &lt;-<span class="st"> </span><span class="kw">min</span>(intensity)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">intensityMax &lt;-<span class="st"> </span><span class="kw">max</span>(intensity)</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">intensityRange &lt;-<span class="st"> </span>intensityMax <span class="op">-</span><span class="st"> </span>intensityMin</a>
-<a class="sourceLine" id="cb10-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb10-5" data-line-number="5">intensityNormalized &lt;-<span class="st"> </span>(intensity<span class="op">-</span>intensityMin)<span class="op">/</span>intensityRange <span class="co"># normalized intensity values</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>intensityMin <span class="ot">&lt;-</span> <span class="fu">min</span>(intensity)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>intensityMax <span class="ot">&lt;-</span> <span class="fu">max</span>(intensity)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>intensityRange <span class="ot">&lt;-</span> intensityMax <span class="sc">-</span> intensityMin</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>intensityNormalized <span class="ot">&lt;-</span> (intensity<span class="sc">-</span>intensityMin)<span class="sc">/</span>intensityRange <span class="co"># normalized intensity values</span></span></code></pre></div>
 <div id="fitting-the-models-to-the-data" class="section level2">
 <h2>Fitting the models to the data</h2>
 <p>To fit a model to the data using the function <code>multipleFitFunction()</code>, we provide it as input the normalized data and the model type to be fitted, which can be <code>&quot;sigmoidal&quot;</code> or <code>&quot;doublesigmoidal&quot;</code>. Here we are fitting both models to the same input data:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># Do the sigmoidal fit</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">sigmoidalModel &lt;-<span class="st"> </span><span class="kw">multipleFitFunction</span>(<span class="dt">dataInput=</span>normalizedInput,</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3">                                      <span class="dt">model=</span><span class="st">&quot;sigmoidal&quot;</span>)</a>
-<a class="sourceLine" id="cb11-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb11-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb11-6" data-line-number="6"><span class="co"># Do the double-sigmoidal fit</span></a>
-<a class="sourceLine" id="cb11-7" data-line-number="7">doubleSigmoidalModel &lt;-<span class="st"> </span><span class="kw">multipleFitFunction</span>(<span class="dt">dataInput=</span>normalizedInput,</a>
-<a class="sourceLine" id="cb11-8" data-line-number="8">                                            <span class="dt">model=</span><span class="st">&quot;doublesigmoidal&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Do the sigmoidal fit</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sigmoidalModel <span class="ot">&lt;-</span> <span class="fu">multipleFitFunction</span>(<span class="at">dataInput=</span>normalizedInput,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">model=</span><span class="st">&quot;sigmoidal&quot;</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Do the double-sigmoidal fit</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>doubleSigmoidalModel <span class="ot">&lt;-</span> <span class="fu">multipleFitFunction</span>(<span class="at">dataInput=</span>normalizedInput,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                                            <span class="at">model=</span><span class="st">&quot;doublesigmoidal&quot;</span>)</span></code></pre></div>
 <p>The two generated model objects contain a large number of computed parameters, described in detail in the following.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">t</span>(sigmoidalModel)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(sigmoidalModel)</span></code></pre></div>
 <pre><code>##                                      [,1]                   
 ## maximum_N_Estimate                   &quot;0.5817715&quot;            
 ## maximum_Std_Error                    &quot;0.0471064&quot;            
@@ -402,7 +431,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ## betterFit                            &quot;4&quot;                    
 ## correctFit                           &quot;20&quot;                   
 ## totalFit                             &quot;28&quot;</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">t</span>(doubleSigmoidalModel)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(doubleSigmoidalModel)</span></code></pre></div>
 <pre><code>##                                          [,1]                   
 ## finalAsymptoteIntensityRatio_N_Estimate  &quot;0.2783729&quot;            
 ## finalAsymptoteIntensityRatio_Std_Error   &quot;0.005673176&quot;          
@@ -511,6 +540,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </ul>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

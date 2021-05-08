@@ -1,4 +1,4 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
 ## ----install packages, echo=FALSE, warning=FALSE, results='hide',message=FALSE----
@@ -16,7 +16,7 @@ require("ggplot2")
 require("cowplot")
 ###*****************************
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # simulate sigmoidal data
 time <- seq(3, 24, 0.5)
 
@@ -43,7 +43,7 @@ dataInputDoubleSigmoidal <- data.frame(intensity = intensity, time = time)
 fitObj_sm <- fitAndCategorize(dataInput = dataInputSigmoidal)
 fitObj_dsm <- fitAndCategorize(dataInput = dataInputDoubleSigmoidal)
 
-## ----plot raw data, echo=TRUE, fig.height=4, fig.width=6-----------------
+## ----plot raw data, echo=TRUE, fig.height=4, fig.width=6----------------------
 # sigmoidal raw data only
 figureModelCurves(dataInput = fitObj_sm$normalizedInput)
 
